@@ -4,7 +4,7 @@ import Stripe from 'stripe'
 
 import { checkRole } from '../collections/Users/checkRole'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
   apiVersion: '2022-08-01',
 })
 
@@ -27,7 +27,8 @@ export const customersProxy: PayloadHandler = async (req: PayloadRequest, res) =
 
     res.status(200).json(customers)
   } catch (error: unknown) {
-    if (logs) req.payload.logger.error({ err: `Error using Stripe API: ${error}` })
-    res.status(500).json({ error: `Error using Stripe API: ${error}` })
+    const errorMessage = (error as Error)?.message || 'Unknown error occurred'
+    if (logs) req.payload.logger.error({ err: `Error using Stripe API: ${errorMessage}` })
+    res.status(500).json({ error: `Error using Stripe API: ${errorMessage}` })
   }
 }

@@ -1,8 +1,6 @@
 import type { PayloadHandler } from 'payload/config'
 import Stripe from 'stripe'
 
-import type { CartItems } from '../payload-types'
-
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
   apiVersion: '2022-08-01',
 })
@@ -34,10 +32,12 @@ export const createPaymentIntent: PayloadHandler = async (req, res): Promise<voi
 
     // lookup user in Stripe and create one if not found
     if (!stripeCustomerID) {
-      const customer = await stripe.customers.create({
+      const customerData: Stripe.CustomerCreateParams = {
         email: fullUser?.email,
-        name: fullUser?.name,
-      })
+        name: fullUser?.name || '',
+      }
+
+      const customer = await stripe.customers.create(customerData)
 
       stripeCustomerID = customer.id
 
@@ -52,15 +52,21 @@ export const createPaymentIntent: PayloadHandler = async (req, res): Promise<voi
 
     let total = 0
 
-    const hasItems = fullUser?.cart?.items?.length > 0
+    var hasItems = false
+    if (fullUser?.cart?.items?.length != null) {
+      hasItems = true
+    }
 
     if (!hasItems) {
       throw new Error('No items in cart')
     }
 
+    // Filter out items that are undefined
+    const filteredItems = fullUser?.cart?.items?.filter(item => item) || []
+
     // for each item in cart, lookup the product in Stripe and add its price to the total
     await Promise.all(
-      fullUser?.cart?.items?.map(async (item: CartItems[0]): Promise<null> => {
+      filteredItems.map(async (item): Promise<null> => {
         const { product, quantity } = item
 
         if (!quantity) {
@@ -83,7 +89,9 @@ export const createPaymentIntent: PayloadHandler = async (req, res): Promise<voi
         }
 
         const price = prices.data[0]
-        total += price.unit_amount * quantity
+        if (price.unit_amount != null) {
+          total += price.unit_amount * quantity
+        }
 
         return null
       }),
