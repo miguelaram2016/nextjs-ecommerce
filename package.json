@@ -59,6 +59,7 @@
     "@typescript-eslint/eslint-plugin": "^5.51.0",
     "@typescript-eslint/parser": "^5.51.0",
     "copyfiles": "^2.4.1",
+    "encoding": "^0.1.13",
     "eslint": "^8.19.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-import-resolver-alias": "^1.1.2",
