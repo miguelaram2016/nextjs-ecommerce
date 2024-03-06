@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { AfterDeleteHook } from 'payload/dist/collections/config/types'
 
 import type { Product } from '../../../payload-types'
@@ -30,7 +31,7 @@ export const deleteProductFromCarts: AfterDeleteHook<Product> = async ({ req, id
               collection: 'users',
               id: user.id,
               data: {
-                cart: cartWithoutProduct as never,
+                cart: cartWithoutProduct as any,
               },
             })
           }
