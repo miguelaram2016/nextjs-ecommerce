@@ -55,8 +55,7 @@ const nextConfig = {
 // Correctly apply the `withPayload` wrapper
 module.exports = withPayload(nextConfig, {
   // Configuration options for PayloadCMS
-  configPath: path.resolve(__dirname, './payload/payload.config.ts'),
-  cssPath: path.resolve(__dirname, './css/my-custom-payload-styles.css'),
-  payloadPath: path.resolve(process.cwd(), './payload/payloadClient.ts'),
+  configPath: path.resolve(__dirname, './src/payload/payload.config.ts'),
+  payloadPath: path.resolve(process.cwd(), './src/payload/payloadClient.ts'),
   adminRoute: '/admin',
 })
