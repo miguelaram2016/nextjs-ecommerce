@@ -18,7 +18,10 @@ export const deleteProductFromCarts: AfterDeleteHook<Product> = async ({ req, id
       usersWithProductInCart.docs.map(async user => {
         const cart = user.cart
         if (cart?.items) {
-          const itemsWithoutProduct = cart.items.filter(item => item && item.product !== id)
+          // Define type explicitly for item.product
+          const itemsWithoutProduct = cart.items.filter(
+            (item: { product?: string }) => item && item.product !== id,
+          )
           const cartWithoutProduct = {
             ...cart,
             items: itemsWithoutProduct,

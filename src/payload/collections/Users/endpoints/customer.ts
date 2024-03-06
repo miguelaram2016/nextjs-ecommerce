@@ -2,7 +2,7 @@ import type { PayloadHandler } from 'payload/config'
 import type { PayloadRequest } from 'payload/types'
 import Stripe from 'stripe'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
   apiVersion: '2022-08-01',
 })
 
@@ -61,7 +61,7 @@ export const customerProxy: PayloadHandler = async (req: PayloadRequest, res) =>
 
     if (req.method === 'GET') {
       if (req.user.stripeCustomerID) {
-        response = customer
+        response = customer as Stripe.Customer
       }
     }
 
@@ -69,9 +69,8 @@ export const customerProxy: PayloadHandler = async (req: PayloadRequest, res) =>
       if (!req.body) throw new Error('No customer data provided')
       // TODO: lock down the spread `customer` object to only allow certain fields
       response = await stripe.customers.update(req.user.stripeCustomerID, req.body)
+      res.status(200).json(response)
     }
-
-    res.status(200).json(response)
   } catch (error: unknown) {
     if (logs) req.payload.logger.error({ err: `Error using Stripe API: ${error}` })
     res.status(500).json({ error: `Error using Stripe API: ${error}` })
