@@ -8,7 +8,7 @@ export const deleteProductFromCarts: AfterDeleteHook<Product> = async ({ req, id
     overrideAccess: true,
     where: {
       'cart.items.product': {
-        equals: id,
+        equals: id as string, // Ensure id is treated as a string
       },
     },
   })
@@ -18,7 +18,6 @@ export const deleteProductFromCarts: AfterDeleteHook<Product> = async ({ req, id
       usersWithProductInCart.docs.map(async user => {
         const cart = user.cart
         if (cart?.items) {
-          // Define type explicitly for item.product
           const itemsWithoutProduct = cart.items.filter(
             (item: { product?: string }) => item && item.product !== id,
           )
